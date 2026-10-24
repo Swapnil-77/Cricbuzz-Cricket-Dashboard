@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricbuzz | Cricket Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+    <a class="brand" href="#">
+        <span class="brand-icon">🏏</span>
+        <span>Cric<span class="brand-highlight">buzz</span></span>
+    </a>
+
+    <nav>
+        <a class="nav-link active" href="#">Matches</a>
+        <span class="api-status">
+            <span id="apiDot" class="status-dot"></span>
+            <span id="apiStatus">Checking API...</span>
+        </span>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <div>
+            <p class="eyebrow">CRICKET CENTER</p>
+            <h1>Match Dashboard</h1>
+            <p class="hero-subtitle">
+                Every match. Every run. Every moment.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <button class="btn btn-outline" id="refreshBtn">↻ Refresh</button>
+            <button class="btn btn-primary" id="openAddBtn">+ Add Match</button>
+        </div>
+    </section>
+
+    <section class="stats-grid">
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Total Matches</span>
+                <span class="stat-icon">🏏</span>
+            </div>
+            <h2 id="totalMatches">0</h2>
+            <p>All matches</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Live Matches</span>
+                <span class="stat-icon live-icon">●</span>
+            </div>
+            <h2 id="liveMatches">0</h2>
+            <p>Currently in progress</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Upcoming</span>
+                <span class="stat-icon">📅</span>
+            </div>
+            <h2 id="upcomingMatches">0</h2>
+            <p>Scheduled matches</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Completed</span>
+                <span class="stat-icon">✓</span>
+            </div>
+            <h2 id="completedMatches">0</h2>
+            <p>Finished matches</p>
+        </article>
+    </section>
+
+    <section class="section-heading">
+        <div>
+            <h2>All Matches</h2>
+            <p>Browse and manage cricket matches</p>
+        </div>
+        <span class="match-count" id="matchCount">0 matches</span>
+    </section>
+
+    <section class="filter-panel">
+        <form id="searchForm" class="filter-form">
+            <div class="search-box">
+                <span>⌕</span>
+                <input type="search" id="teamSearch"
+                       placeholder="Search teams or venue...">
+            </div>
+
+            <select id="statusFilter" aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                <option value="LIVE">Live</option>
+                <option value="UPCOMING">Upcoming</option>
+                <option value="COMPLETED">Completed</option>
+            </select>
+
+            <select id="sortFilter" aria-label="Sort matches">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="team">Team Name A–Z</option>
+            </select>
+
+            <button class="btn btn-outline" type="submit">Search</button>
+            <button class="btn btn-text" id="resetBtn" type="button">Reset</button>
+        </form>
+    </section>
+
+    <section id="loadingContainer" class="message-card">
+        <div class="loader"></div>
+        <p>Loading matches...</p>
+    </section>
+
+    <section id="errorContainer" class="message-card error-message" hidden>
+        <div class="message-icon">⚠️</div>
+        <h3>Unable to load matches</h3>
+        <p id="errorText">Please check your backend connection.</p>
+        <button class="btn btn-primary" id="retryBtn">Try Again</button>
+    </section>
+
+    <section id="emptyState" class="message-card" hidden>
+        <div class="message-icon">🏏</div>
+        <h3>No matches found</h3>
+        <p>Try changing the filters or add a new match.</p>
+        <button class="btn btn-outline" id="emptyResetBtn">Clear Filters</button>
+    </section>
+
+    <section id="matchesContainer" class="matches-grid"></section>
+
+    <section class="pagination">
+        <span id="pageInfo">Page 1</span>
+        <div>
+            <button class="btn btn-outline" id="prevPageBtn" disabled>
+                ← Previous
+            </button>
+            <button class="btn btn-outline" id="nextPageBtn" disabled>
+                Next →
+            </button>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>🏏 Cricbuzz Cricket Dashboard</p>
+    <p>Powered by Spring Boot REST API</p>
+</footer>
+
+<!-- ADD / EDIT MATCH MODAL -->
+<div class="modal-backdrop" id="matchModal" hidden>
+    <section class="modal">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">MATCH MANAGEMENT</p>
+                <h2 id="matchModalTitle">Add New Match</h2>
+            </div>
+            <button class="icon-button" id="closeModalBtn"
+                    type="button" aria-label="Close">✕</button>
+        </div>
+
+        <form id="matchForm">
+            <input type="hidden" id="matchId">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="team1Id">Team 1</label>
+                    <select id="team1Id" required>
+                        <option value="">Select Team 1</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="team2Id">Team 2</label>
+                    <select id="team2Id" required>
+                        <option value="">Select Team 2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="matchType">Match Format</label>
+                    <select id="matchType" required>
+                        <option value="">Select Format</option>
+                        <option value="T20">T20</option>
+                        <option value="ODI">ODI</option>
+                        <option value="TEST">Test</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="matchDate">Date & Time</label>
+                    <input type="datetime-local" id="matchDate" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="venue">Venue</label>
+                    <input type="text" id="venue" maxlength="150"
+                           placeholder="e.g. Wankhede Stadium, Mumbai" required>
+                </div>
+            </div>
+
+            <p class="form-note">
+                New matches are created with UPCOMING status.
+            </p>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline"
+                        id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary"
+                        id="saveMatchBtn">Save Match</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<!-- MATCH DETAILS MODAL -->
+<div class="modal-backdrop" id="detailsModal" hidden>
+    <section class="modal details-modal">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">MATCH CENTER</p>
+                <h2 id="detailsTitle">Match Details</h2>
+            </div>
+            <button class="icon-button" id="closeDetailsBtn"
+                    type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div id="detailsContent"></div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="closeDetailsAction"
+                    type="button">Close</button>
+        </div>
+    </section>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>
