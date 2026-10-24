@@ -1,50 +1,228 @@
-# 🏏 Cricbuzz Backend API
+# 🏏 Cricbuzz Cricket Dashboard
 
-REST API to manage cricket **teams, players, matches and live scores**, built with Spring Boot 3, Spring Data JPA and MySQL.
+A full-stack cricket dashboard built using **Java, Spring Boot, MySQL, HTML, CSS, and JavaScript**. This project provides REST APIs for managing cricket matches, teams, and players, along with an interactive web interface for viewing and managing match information.
 
-## ⚙️ Tech Stack
-Java 21 · Spring Boot 3.5 · Spring Data JPA (Hibernate) · MySQL 8 · Bean Validation · springdoc-openapi (Swagger UI) · JUnit 5 + MockMvc + H2 · Docker · GitHub Actions
+## 🚀 Features
 
-## ✨ Highlights
-- Layered architecture (controller → service → repository) with DTOs (Java records); entities are never exposed
-- Match lifecycle state machine: `UPCOMING → LIVE → COMPLETED`; scores can only be updated while LIVE; result auto-computed on completion
-- Global exception handling with RFC 7807 `ProblemDetail` responses (400/404/409/500)
-- Pagination, sorting and filtering (`/players?teamId=1&role=BATSMAN`, `/matches?status=LIVE`)
-- N+1 prevention via `@EntityGraph`; `open-in-view` disabled
-- Externalised config via env vars, Dockerised, CI pipeline, integration tests
+- 🏏 **Match Management** — Create, view, update, and delete cricket matches.
+- 📊 **Score Management** — Update runs, wickets, and overs.
+- 🔴 **Match Status Management** — Manage upcoming, live, and completed matches.
+- 🏆 **Team Management** — Manage cricket teams.
+- 👤 **Player Management** — Manage player information.
+- 🔍 **Search and Filtering** — Find matches using the dashboard's available filters.
+- 📄 **Pagination and Sorting** — Navigate match and player data where supported.
+- 📱 **Interactive Dashboard** — View match information through a web interface.
+- 🔌 **REST API** — Backend APIs built using Spring Boot.
+- 🗄️ **MySQL Database** — Store match, team, and player information.
 
-## 🔗 API (base path `/api/v1`)
-| Method | Endpoint | Description |
+## 🛠️ Tech Stack
+
+### Backend
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- Maven
+- REST APIs
+
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+
+### Database and Tools
+- MySQL
+- MySQL Workbench
+- IntelliJ IDEA
+- Postman
+- Git and GitHub
+- Docker
+
+## 📂 Project Structure
+
+```text
+Cricbuzz-Cricket-Dashboard/
+│
+├── Crickbuzz-Backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/swapnil/cricbuzz/
+│   │   │   │   ├── config/
+│   │   │   │   ├── controller/
+│   │   │   │   ├── dto/
+│   │   │   │   ├── entity/
+│   │   │   │   ├── exception/
+│   │   │   │   ├── repository/
+│   │   │   │   └── service/
+│   │   │   └── resources/
+│   │   └── test/
+│   ├── pom.xml
+│   ├── Dockerfile
+│   └── README.md
+│
+└── Crickbuzz-Frontend/
+    ├── index.html
+    ├── style.css
+    └── script.js
+```
+
+## ⚙️ Prerequisites
+
+Before running this project, make sure you have installed:
+
+- Java Development Kit (JDK 21, if required by your project configuration)
+- MySQL Server
+- IntelliJ IDEA or another Java IDE
+- A modern web browser
+- Postman (optional, for API testing)
+- Docker (optional)
+
+## 🗄️ Database Configuration
+
+This project uses MySQL to store cricket match, team, and player information.
+
+### Step 1: Create the database
+
+Open MySQL Workbench and execute:
+
+```sql
+CREATE DATABASE cricbuzz;
+```
+
+If the database already exists, you do not need to create it again.
+
+### Step 2: Configure the database connection
+
+Open:
+
+`Crickbuzz-Backend/src/main/resources/application.yml`
+
+Configure your MySQL connection details.
+
+Example:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/cricbuzz
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+```
+
+This is an example configuration. Keep the existing settings your application requires, and use environment variables for database credentials.
+
+**Security:** Never upload your actual database password, API keys, or other secrets to a public GitHub repository.
+
+## ▶️ How to Run the Backend
+
+1. Clone or download this repository.
+2. Open the `Crickbuzz-Backend` folder containing `pom.xml` in IntelliJ IDEA.
+3. Configure your MySQL database connection.
+4. Ensure the database server is running.
+5. Run the `CricbuzzApplication.java` main class.
+
+The application may run at:
+
+```text
+http://localhost:8080
+```
+
+The actual port depends on your application configuration.
+
+## 🌐 How to Run the Frontend
+
+1. Open the `Crickbuzz-Frontend` folder.
+2. Open `index.html` in your browser, or use the Live Server extension in VS Code.
+3. Make sure the Spring Boot backend is running.
+4. Check the API URLs in `script.js` to ensure they point to the correct backend address.
+
+For local development, the API base URL may be:
+
+```text
+http://localhost:8080
+```
+
+The frontend and backend must be configured to communicate correctly. If they run on different ports, ensure the backend's CORS configuration allows the frontend origin.
+
+## 🔌 REST API Endpoints
+
+The backend provides APIs for managing matches, teams, and players.
+
+### Match APIs
+
+| HTTP Method | Endpoint | Description |
 |---|---|---|
-| POST / GET | `/teams` | Create / list teams |
-| GET / PUT / DELETE | `/teams/{id}` | Get / update / delete team |
-| POST / GET | `/players` | Create / list players (filters: `teamId`, `role`) |
-| GET / PUT / DELETE | `/players/{id}` | Get / update / delete player |
-| POST / GET | `/matches` | Schedule / list matches (filter: `status`) |
-| GET / DELETE | `/matches/{id}` | Get / delete match |
-| PATCH | `/matches/{id}/status` | Move match to `LIVE` or `COMPLETED` |
-| PATCH | `/matches/{id}/score` | Update live score for both teams |
+| GET | `/api/v1/matches` | Retrieve matches |
+| GET | `/api/v1/matches/{id}` | Retrieve a match by ID |
+| POST | `/api/v1/matches` | Create a match |
+| PUT | `/api/v1/matches/{id}` | Update a match |
+| PATCH | `/api/v1/matches/{id}/score` | Update a match score |
+| PATCH | `/api/v1/matches/{id}/status` | Update match status |
+| DELETE | `/api/v1/matches/{id}` | Delete a match |
 
-Swagger UI: `http://localhost:8080/swagger-ui.html` · Health: `/actuator/health`
+> Check `MatchController.java` to confirm that every method and endpoint matches the current implementation.
 
-## ▶️ Run
-**Docker (easiest):**
-```bash
-docker compose up --build
+### Team APIs
+
+Team management endpoints are implemented in `TeamController.java`.
+
+### Player APIs
+
+Player management endpoints are implemented in `PlayerController.java`.
+
+For the exact request methods, paths, and request formats, refer to the respective controller classes or the project's API documentation.
+
+## 🖼️ Screenshots
+
+Screenshots of the running application can be added here to demonstrate the dashboard and its features.
+
+Suggested screenshots:
+
+- Main dashboard showing cricket matches
+- Live match score
+- Match creation or editing form
+- Match details view
+
+Create a `screenshots` folder in the repository and add your screenshots before linking them in this section.
+
+Example Markdown syntax:
+
+```markdown
+![Cricbuzz Dashboard](screenshots/dashboard.png)
 ```
-**Locally:** start MySQL, then
-```bash
-export DB_URL="jdbc:mysql://localhost:3306/cricbuzz?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
-export DB_USERNAME=root DB_PASSWORD=yourpassword
-./mvnw spring-boot:run
-```
-**Tests:** `./mvnw verify`
 
-## 📮 Example
-```bash
-curl -X POST localhost:8080/api/v1/teams -H 'Content-Type: application/json' \
-  -d '{"name":"India","shortName":"IND","country":"India"}'
+## 🧪 Testing
 
-curl -X PATCH localhost:8080/api/v1/matches/1/score -H 'Content-Type: application/json' \
-  -d '{"team1":{"runs":180,"wickets":5,"overs":20},"team2":{"runs":170,"wickets":8,"overs":20}}'
+The project contains backend integration tests.
+
+To run the Maven test suite, open a terminal in the backend project directory and execute:
+
+```bash
+mvn test
 ```
+
+Ensure that any required test configuration and dependencies are available before running the tests.
+
+## 🔮 Future Improvements
+
+- Deploy the frontend and backend online.
+- Improve mobile responsiveness.
+- Add authentication and role-based authorization.
+- Integrate a reliable live cricket data source.
+- Add more automated tests.
+- Improve monitoring and error handling.
+
+## 👨‍💻 Author
+
+**Swapnil Phad**
+
+- GitHub: [Swapnil-77](https://github.com/Swapnil-77)
+- LinkedIn: [Swapnil Phad](https://www.linkedin.com/in/swapnil-phad7/)
+
+## ⭐ Support
+
+If you find this project interesting, consider giving the repository a star!
+
+---
+
+**Built with Java, Spring Boot, MySQL, HTML, CSS, and JavaScript.**
